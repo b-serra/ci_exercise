@@ -15,7 +15,7 @@ def is_palindrome(s:str)->bool:
     """Check if a string is a palindrome (case-insensitive)."""
     cleaned=s.lower().replace(" ","")
     # BUG: Wrong comparison - comparing to original instead of reversed!
-    return cleaned==s
+    return cleaned==cleaned[::-1]
 
 
 def count_vowels(s:str)->int:
