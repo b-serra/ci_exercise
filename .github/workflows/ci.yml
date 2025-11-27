@@ -26,3 +26,20 @@ jobs:
     - name: Run tests
       run: |
         pytest --cov=src tests/
+  format:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install Black
+      run: pip install black
+    
+    - name: Check formatting
+      run: black --check src tests
+
