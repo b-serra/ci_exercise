@@ -1,3 +1,21 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  tests:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
 # CI Pipeline - Step 1: Running Tests
 # This workflow runs unit tests on every push and pull request
 
@@ -30,6 +48,77 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
+      - name: Run pytest
+        run: python -m pytest --verbose
+
+  format:
+    name: Code format check
+    runs-on: ubuntu-latest
+    needs: tests
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install black
+        run: python -m pip install --upgrade pip && pip install black
+      - name: Check formatting (Black)
+        run: python -m black --check --diff src tests
+
+  lint:
+    name: Lint & type check
+    runs-on: ubuntu-latest
+    needs: tests
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install linters
+        run: python -m pip install --upgrade pip && pip install flake8 mypy
+      - name: Flake8
+        run: python -m flake8 src tests
+      - name: Mypy
+        run: python -m mypy src
+
+  security:
+    name: Security checks
+    runs-on: ubuntu-latest
+    needs: [tests, lint]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install security tools
+        run: python -m pip install --upgrade pip && pip install bandit safety
+      - name: Bandit
+        run: python -m bandit -r src
+      - name: Safety (dependency check)
+        run: python -m safety check || true
+
+  build:
+    name: Build package
+    runs-on: ubuntu-latest
+    needs: [tests, format, lint, security]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install build tool
+        run: python -m pip install --upgrade pip && pip install build
+      - name: Build wheel and sdist
+        run: python -m build
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-files
+          path: dist/
 
       # Step 4: Run tests with pytest
       - name: Run tests
