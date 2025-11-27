@@ -20,6 +20,7 @@ def multiply(a: float,b: float) -> float:
     """Multiply two numbers."""
     # BUG: Wrong operation - should be multiplication, not addition!
     return a+b
+    return a + b
 
 
 def divide(a: float,b: float) -> float:

@@ -16,6 +16,9 @@ def is_palindrome(s:str)->bool:
     cleaned=s.lower().replace(" ","")
     # BUG: Wrong comparison - comparing to original instead of reversed!
     return cleaned==s
+    cleaned = s.lower().replace(" ", "")
+    # BUG: Wrong comparison - comparing to original instead of reversed!
+    return cleaned == s
 
 
 def count_vowels(s:str)->int:
